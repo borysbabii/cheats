@@ -1,0 +1,34 @@
+% aws, ecs
+
+# list of ecs clusters
+aws ecs list-clusters | jq -r .clusterArns[] | sort
+
+# list of ecs services
+aws ecs list-services --cluster <cluster> | jq -r .serviceArns[] | sort
+
+$ cluster: aws ecs list-clusters | jq -r .clusterArns[] | sort
+
+# list of ecs cluster tasks
+aws ecs list-tasks --cluster <cluster>
+
+# list of ecs service tasks in a cluster
+aws ecs list-tasks --cluster <cluster> --service <service>
+
+$ service: aws ecs list-services --cluster <cluster> | jq -r .serviceArns[] | sort
+
+# restart service
+aws ecs update-service --force-new-deployment --cluster <cluster> --service <service>
+
+$ taskDefinition: aws ecs list-task-definition-families | jq -r .families[] | sort
+
+# run task
+aws ecs run-task \
+    --cluster <cluster> \
+    --count <count> \
+    --enable-ecs-managed-tags \
+    --launch-type FARGATE \
+    --group manual \
+    --network-configuration "awsvpcConfiguration={subnets=[<subnets>],securityGroups=[<securityGroups>],assignPublicIp=DISABLED}" \
+    --platform-version 1.4.0 \
+    --propagate-tags TASK_DEFINITION \
+    --task-definition <taskDefinition>
